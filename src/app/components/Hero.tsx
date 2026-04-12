@@ -122,10 +122,10 @@ export const Hero = () => {
             <p className="text-red-600 font-semibold text-center md:text-left mb-3">
               LIGUE AGORA: <span className="text-2xl font-black">800</span>
             </p>
-            <p className="text-sm text-red-700">
+            {/* <p className="text-sm text-red-700">
               Linha Verde disponível 24h. Contacte-nos imediatamente em caso de emergência.
               Fale com um profissional de saúde em tempo real.
-            </p>
+            </p> */}
             <button
               onClick={() => {
                 if (navigator.userAgent.indexOf("iPhone") > -1 || navigator.userAgent.indexOf("Android") > -1) {
