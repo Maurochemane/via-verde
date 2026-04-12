@@ -9,7 +9,7 @@ export default function Home() {
     <div className="w-full">
       <Hero />
       <Container className="py-10">
-        {/* SearchBar moved to registration page */}
+        <div />
       </Container>
       <Container className="py-6">
         <WhatsAppBanner />

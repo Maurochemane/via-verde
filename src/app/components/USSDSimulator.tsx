@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { X, Phone, PhoneOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+// Type casting to fix Framer Motion v11 compatibility with React 19
+const MotionDiv = motion.div as React.FC<any>;
+const MotionButton = motion.button as React.FC<any>;
 interface USSDState {
   screen: "idle" | "main" | "service" | "consult_location" | "triaging_name" | "triaging_location" | "triaging_phone" | "triaging_symptoms" | "triaging_description" | "ai_analyzing" | "hospital_recommended" | "confirmation" | "ticket";
   currentInput: string;
@@ -448,9 +450,14 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
       currentInput: "",
       selectedService: "",
       selectedLocation: "",
-      symptoms: [],
+      patientName: "",
+      patientLocation: "",
+      patientPhone: "",
+      patientSymptoms: "",
       ticketNumber: "",
       messages: [],
+      inputBuffer: "",
+      recommendedHospital: null
     });
     onClose();
   };
@@ -459,18 +466,20 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
   return (
     <AnimatePresence>
-      <motion.div
+      {/* @ts-ignore */}
+      <MotionDiv
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
-        <motion.div
+        {/* @ts-ignore */}
+        <MotionDiv
           initial={{ scale: 0.8, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.8, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: any) => e.stopPropagation()}
           className="relative"
         >
           {/* Phone Frame */}
@@ -489,48 +498,52 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               {/* Messages Area */}
               <div className="space-y-1 text-sm overflow-y-auto max-h-64 pb-2">
                 {state.messages.map((msg, idx) => (
-                  <motion.div
+                  
+                  <MotionDiv
                     key={idx}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className={msg.includes("✓") ? "text-green-300 font-bold" : ""}
                   >
                     {msg}
-                  </motion.div>
+                  </MotionDiv>
                 ))}
                 
                 {/* Show input buffer for text input screens */}
                 {(state.screen === "triaging_name" || state.screen === "triaging_location" || state.screen === "triaging_phone" || state.screen === "triaging_description") && (
-                  <motion.div
+                  
+                  <MotionDiv
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-2 text-green-300 font-semibold"
                   >
                     &gt; {state.inputBuffer}
                     <span className="animate-pulse">_</span>
-                  </motion.div>
+                  </MotionDiv>
                 )}
                 
                 {state.screen === "idle" && (
-                  <motion.div
+                  
+                  <MotionDiv
                     animate={{ opacity: [0.5, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                     className="text-green-500 text-sm mt-4"
                   >
                     Pressione qualquer número...
-                  </motion.div>
+                  </MotionDiv>
                 )}
               </div>
 
               {/* Current Input Display */}
               {state.currentInput && state.screen !== "triaging_name" && state.screen !== "triaging_location" && state.screen !== "triaging_phone" && state.screen !== "triaging_description" && (
-                <motion.div
+                
+                <MotionDiv
                   initial={{ scale: 1.2, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="text-center text-lg font-bold text-green-300 py-2"
                 >
                   {state.currentInput}
-                </motion.div>
+                </MotionDiv>
               )}
             </div>
 
@@ -543,7 +556,8 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                   {KEYBOARD_ROWS.map((row, rowIdx) => (
                     <div key={rowIdx} className="flex gap-1 justify-center">
                       {row.map((char) => (
-                        <motion.button
+                        
+                        <MotionButton
                           key={char}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.9 }}
@@ -551,34 +565,37 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                           className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-2 py-2 rounded text-xs transition"
                         >
                           {char.toUpperCase()}
-                        </motion.button>
+                        </MotionButton>
                       ))}
                     </div>
                   ))}
 
                   {/* Space and Special Buttons */}
                   <div className="flex gap-1 justify-center">
-                    <motion.button
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={handleBackspace}
                       className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded text-xs flex-1 transition"
                     >
                       ← DEL
-                    </motion.button>
-                    <motion.button
+                    </MotionButton>
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleCharacter(" ")}
                       className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded text-xs flex-1 transition"
                     >
                       ESPAÇO
-                    </motion.button>
-                    <motion.button
+                    </MotionButton>
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleSubmitText(state.inputBuffer)}
                       className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded text-xs flex-1 transition"
                     >
                       OK ✓
-                    </motion.button>
+                    </MotionButton>
                   </div>
                 </>
               )}
@@ -588,7 +605,8 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                 <>
                   <div className="grid grid-cols-3 gap-2">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                      <motion.button
+                      
+                      <MotionButton
                         key={num}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
@@ -596,35 +614,38 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                         className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded transition"
                       >
                         {num}
-                      </motion.button>
+                      </MotionButton>
                     ))}
                   </div>
 
                   {/* Bottom Row with *, 0, # */}
                   <div className="grid grid-cols-3 gap-2">
-                    <motion.button
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleDigit("*")}
                       className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded transition text-xl"
                     >
                       *
-                    </motion.button>
+                    </MotionButton>
 
-                    <motion.button
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleDigit("0")}
                       className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded transition"
                     >
                       0
-                    </motion.button>
+                    </MotionButton>
 
-                    <motion.button
+                    {/* @ts-ignore */}
+                    <MotionButton
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleDigit("#")}
                       className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded transition text-xl"
                     >
                       #
-                    </motion.button>
+                    </MotionButton>
                   </div>
                 </>
               )}
@@ -632,42 +653,50 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               {/* Call and Hangup Buttons */}
               <div className="grid grid-cols-2 gap-2 mt-3">
                 {/* Green Call Button */}
-                <motion.button
+                {/* @ts-ignore */}
+                <MotionButton
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() =>
-                    state.screen === "idle" && handleDigit("1")
-                  }
-                  disabled={state.screen !== "idle"}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-3 rounded flex items-center justify-center transition"
+                  onClick={() => {
+                    if (state.screen === "idle") {
+                      handleDigit("1");
+                    }
+                  }}
+                  className={`font-bold py-3 rounded flex items-center justify-center transition ${
+                    state.screen !== "idle"
+                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700 text-white"
+                  }`}
                 >
                   <Phone size={20} />
-                </motion.button>
+                </MotionButton>
 
                 {/* Red Hangup Button */}
-                <motion.button
+                {/* @ts-ignore */}
+                <MotionButton
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleHangup}
                   className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded flex items-center justify-center transition"
                 >
                   <PhoneOff size={20} />
-                </motion.button>
+                </MotionButton>
               </div>
             </div>
           </div>
 
           {/* Close Button */}
-          <motion.button
+          {/* @ts-ignore */}
+          <MotionButton
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={onClose}
             className="absolute -top-12 right-0 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:bg-gray-100 transition"
           >
             <X size={24} />
-          </motion.button>
-        </motion.div>
-      </motion.div>
+          </MotionButton>
+        </MotionDiv>
+      </MotionDiv>
     </AnimatePresence>
   );
 };
