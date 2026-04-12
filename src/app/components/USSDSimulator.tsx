@@ -240,26 +240,79 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         currentInput: "",
       }));
 
-      // Simulate AI analysis
+      // Simulate AI analysis with location capture
       setTimeout(() => {
-        const hospital = findNearestHospital(state.patientLocation);
-        setState((prev) => ({
-          ...prev,
-          screen: "hospital_recommended",
-          recommendedHospital: hospital,
-          messages: [
-            "✓ Análise Concluída!",
-            "",
-            "Hospital Recomendado:",
-            hospital.name,
-            `(${hospital.district})`,
-            `Distância: ~${hospital.distance}km`,
-            "",
-            "1. Confirmar encaminhamento",
-            "2. Cancelar",
-          ],
-          currentInput: "",
-        }));
+        // Capture approximate location (2km radius)
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              // Store approximate coordinates (rounded to ~2km precision)
+              const approxLat = Math.round(latitude * 100) / 100;
+              const approxLng = Math.round(longitude * 100) / 100;
+              
+              const hospital = findNearestHospital(state.patientLocation);
+              setState((prev) => ({
+                ...prev,
+                screen: "hospital_recommended",
+                recommendedHospital: hospital,
+                patientLocation: `${approxLat},${approxLng}`,
+                messages: [
+                  "✓ Análise Concluída!",
+                  "",
+                  "Hospital Recomendado:",
+                  hospital.name,
+                  `(${hospital.district})`,
+                  `Distância: ~${hospital.distance}km`,
+                  "",
+                  "1. Confirmar encaminhamento",
+                  "2. Cancelar",
+                ],
+                currentInput: "",
+              }));
+            },
+            () => {
+              // Fallback if geolocation fails
+              const hospital = findNearestHospital(state.patientLocation);
+              setState((prev) => ({
+                ...prev,
+                screen: "hospital_recommended",
+                recommendedHospital: hospital,
+                messages: [
+                  "✓ Análise Concluída!",
+                  "",
+                  "Hospital Recomendado:",
+                  hospital.name,
+                  `(${hospital.district})`,
+                  `Distância: ~${hospital.distance}km`,
+                  "",
+                  "1. Confirmar encaminhamento",
+                  "2. Cancelar",
+                ],
+                currentInput: "",
+              }));
+            }
+          );
+        } else {
+          const hospital = findNearestHospital(state.patientLocation);
+          setState((prev) => ({
+            ...prev,
+            screen: "hospital_recommended",
+            recommendedHospital: hospital,
+            messages: [
+              "✓ Análise Concluída!",
+              "",
+              "Hospital Recomendado:",
+              hospital.name,
+              `(${hospital.district})`,
+              `Distância: ~${hospital.distance}km`,
+              "",
+              "1. Confirmar encaminhamento",
+              "2. Cancelar",
+            ],
+            currentInput: "",
+          }));
+        }
       }, 1500);
     }
   };
@@ -471,21 +524,21 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black z-50 flex items-center justify-center"
         onClick={onClose}
       >
         {/* @ts-ignore */}
         <MotionDiv
-          initial={{ scale: 0.8, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.8, y: 20 }}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.95 }}
           onClick={(e: any) => e.stopPropagation()}
-          className="relative"
+          className="relative w-full h-full"
         >
-          {/* Phone Frame */}
-          <div className="w-80 bg-black rounded-3xl shadow-2xl overflow-hidden border-8 border-gray-900">
+          {/* Phone Screen - Fullscreen */}
+          <div className="w-full h-screen bg-black rounded-none shadow-2xl overflow-hidden flex flex-col">
             {/* Phone Notch */}
-            <div className="bg-black h-6 flex items-center justify-between px-8 text-white text-xs">
+            <div className="bg-black h-8 flex items-center justify-between px-8 text-white text-xs">
               <span>9:41</span>
               <div className="flex gap-1">
                 <span>📶</span>
@@ -493,8 +546,8 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               </div>
             </div>
 
-            {/* Screen */}
-            <div className="bg-black text-green-400 font-mono p-4 h-96 flex flex-col justify-between">
+            {/* Screen Content - Fullscreen */}
+            <div className="bg-black text-green-400 font-mono p-6 flex-1 flex flex-col justify-between overflow-hidden">
               {/* Messages Area */}
               <div className="space-y-1 text-sm overflow-y-auto max-h-64 pb-2">
                 {state.messages.map((msg, idx) => (
@@ -548,7 +601,7 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             </div>
 
             {/* Keyboard - Conditional (Numeric or QWERTY) */}
-            <div className="bg-gray-800 p-4 space-y-2 max-h-48 overflow-y-auto">
+            <div className="bg-gray-800 p-4 space-y-2 flex-1 overflow-y-auto">
               {/* QWERTY Keyboard for text input */}
               {(state.screen === "triaging_name" || state.screen === "triaging_location" || state.screen === "triaging_phone" || state.screen === "triaging_description") && (
                 <>
@@ -685,16 +738,16 @@ const USSDSimulator: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             </div>
           </div>
 
-          {/* Close Button */}
+          {/* Close Button - Top Right Corner */}
           {/* @ts-ignore */}
           <MotionButton
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onClose}
-            className="absolute -top-12 right-0 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:bg-gray-100 transition"
-          >
-            <X size={24} />
-          </MotionButton>
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow-lg z-50"
+        >
+          <X size={28} />
+        </MotionButton>
         </MotionDiv>
       </MotionDiv>
     </AnimatePresence>
