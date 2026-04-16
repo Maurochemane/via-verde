@@ -105,27 +105,26 @@ export const Hero = () => {
               </div>
             </div>
 
+          {/* BUTTONS - Side by side */}
+          <div className="flex flex-col md:flex-row gap-6 w-full max-w-2xl mx-auto md:mx-0 mt-8">
+            {/* LEFT BUTTON */}
             <button
               onClick={() => router.push("/registar-ocorrencia")}
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-4 rounded-lg shadow-lg hover:bg-green-700 hover:shadow-xl transition-all duration-200 font-semibold text-lg"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 text-white px-8 py-4 rounded-lg shadow-lg hover:bg-green-700 hover:shadow-xl transition-all duration-200 font-semibold text-lg"
             >
               <PhoneCall size={20} />
               Registar Ocorrência
             </button>
 
-            {/* EMERGENCY BUTTON - LINHA VERDE 800 */}
-            <div className="mt-6 p-4 bg-red-100 border-2 border-red-500 rounded-xl max-w-xl mx-auto md:mx-0">
+            {/* RIGHT BUTTON - EMERGENCY */}
+            <div className="flex-1 p-4 bg-red-100 border-2 border-red-500 rounded-xl">
               <div className="flex items-center gap-3 mb-2">
                 <AlertCircle className="text-red-600 flex-shrink-0" size={24} />
-                <h3 className="font-bold text-red-700 text-lg">Emergência Médica</h3>
+                <h3 className="font-bold text-red-700 text-lg">Emergência</h3>
               </div>
-              <p className="text-red-600 font-semibold text-center md:text-left mb-3">
+              <p className="text-red-600 font-semibold text-center mb-3">
                 LIGUE AGORA: <span className="text-2xl font-black">800</span>
               </p>
-              {/* <p className="text-sm text-red-700">
-              Linha Verde disponível 24h. Contacte-nos imediatamente em caso de emergência.
-              Fale com um profissional de saúde em tempo real.
-            </p> */}
               <button
                 onClick={() => {
                   if (navigator.userAgent.indexOf("iPhone") > -1 || navigator.userAgent.indexOf("Android") > -1) {
@@ -134,13 +133,16 @@ export const Hero = () => {
                     alert("Ligue para 800 - Linha Verde de Emergência");
                   }
                 }}
-                className="mt-3 w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 <PhoneCall size={20} />
                 Ligar para 800
               </button>
             </div>
           </div>
+              
+    </div>
+        </div>
 
           {/* RIGHT */}
           <div className="flex-1 flex justify-center md:justify-end w-full max-w-xl lg:max-w-2xl">
@@ -154,7 +156,7 @@ export const Hero = () => {
               />
             </div>
           </div>
-        </div>
+        
       </Container>
     </section>
   );
